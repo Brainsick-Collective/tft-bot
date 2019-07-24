@@ -1,0 +1,25 @@
+{
+    "channels": {
+        "role": "CHANNELID",
+        "debug": "CHANNELID",
+        "help": "CHANNELID"
+    },
+    "members": {
+        "discord-ID-1" : "summoner name",
+        "discord-ID-2" : "summoner name"
+    },
+	"prefix": "!",
+    "riotToken": "token-here",
+    "ranks": [
+        "Iron",
+        "Bronze",
+        "Silver",
+        "Gold",
+        "Platinum",
+        "Diamond",
+        "Master",
+        "Grandmaster",
+        "Challenger"
+    ],
+    "discordToken": "token-here"
+}

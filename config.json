@@ -12,7 +12,7 @@
         "156590051013296129" : "Captain Mimzie"
     },
 	"prefix": "!",
-    "riotToken": "RGAPI-6b702951-c494-444d-9138-d955a439f927",
+    "riotToken": "token-here",
     "ranks": [
         "Iron",
         "Bronze",
@@ -24,5 +24,5 @@
         "Grandmaster",
         "Challenger"
     ],
-    "discordToken": "NjAzMzgzNzIwOTY3MTQzNDI1.XThqQQ.qRC4xp6WOF_n6WLnH310MTGjCGA"
+    "discordToken": "token-here"
 }

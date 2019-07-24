@@ -33,14 +33,14 @@ client.on('message', async message => {
 
 async function getData(message, url) {
 	try {
-		console.log('url ' + url);
+
 		const response = await fetch(new URL(url), {
 			headers: {
 				'X-Riot-Token': config.riotToken,
 			},
 		});
 		const json = await response.json();
-		console.log(JSON.stringify(json))
+
 		return json;
 	} catch (error) {
 		console.log(error);
@@ -50,51 +50,68 @@ async function getData(message, url) {
 
 async function getSummonerData(message, args) {
 	const summonerName = args.join('%20');
-	console.log(summonerName);
 	console.log('Getting data for ' + summonerName);
 	const summonerDataURL = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summonerName;
-
-	const summonerData = await getData(message, summonerDataURL);
-
+	var summonerData = null;
+	try {
+		summonerData = await getData(message, summonerDataURL);
+	} catch (error) {
+		console.log("errror fetching data for ");
+		console.log(error);
+	}
 	return summonerData;
 }
+async function setNickname(message, args) {
+
+}
 async function setAllNicknames(message, args) {
-	console.log(JSON.stringify(config.members));
-	for (let player in config.members) {
-		console.log(player + " : " + config.members[player]);
-		const summonerData = await getSummonerData(message, config.members[player].split(" "));
+	var messageString = "```css\n";
+	for (var player in config.members) {
+		var summonerData = null;
+		try {
+			summonerData = await getSummonerData(message, config.members[player].split(" "));
+		} catch (error) {
+			console.log("error fetching Summoner data for " + config.members[player]);
+			console.log(error);
+			continue;
+		}
 		const rankDataURL = 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerData.id;
-		
-		getData(message, rankDataURL) .then(rankData => {
-			let tftRank = null;
+		try {
+			await getData(message, rankDataURL).then(rankData => {
+				let tftRank = null;
 
-			for (let key in rankData) {
-				let currData = rankData[key];
-				if (currData.queueType === 'RANKED_TFT') {
-					tftRank = currData;
-				}
-			}
-
-			if (tftRank) {
-				console.log('ranked stats found');
-				const rank =  tftRank.tier.charAt(0) + tftRank.tier.slice(1).toLowerCase() + ' '
-					+ tftRank.rank + ' ' + tftRank.leaguePoints + ' LP in TeamFight Tactics';
-				console.log(rank);
-				const member = message.member;
-				const newNickname = message.guild.members.get(player).displayName + " " + rank
-				if (tftRank != null) {
-					try {
-						message.channel.send(summonerData.name + ' is currently ' + newNickname);
-						message.guild.members.get(player).setNickname(newNickname)
-					} catch (error) {
-						console.log("error setting nickname");
-						console.log(error)
+				for (let key in rankData) {
+					let currData = rankData[key];
+					if (currData.queueType === 'RANKED_TFT') {
+						tftRank = currData;
 					}
 				}
-			} else {
-				console.log(`Can't find a teamfight tactics rank for that summoner name! Please try again in a few minutes`);
-			}
-		});
+
+				if (tftRank) {
+					console.log('ranked stats found');
+					const rank = tftRank.tier.charAt(0) + tftRank.tier.slice(1).toLowerCase() + ' '
+						+ tftRank.rank + ' ' + tftRank.leaguePoints + ' LP';
+					console.log(rank);
+					const member = message.member;
+					const newNickname = rank;
+					if (tftRank != null) {
+						try {
+							message.channel.send(summonerData.name + ' is currently ' + newNickname);
+							message.guild.members.get(player).setNickname(newNickname)
+						} catch (error) {
+							console.log("error setting nickname");
+							console.log(error)
+						}
+					}
+				} else {
+					message.channel.send(config.members[player] + ' is unranked. Git gud scrub');
+					console.log(`Can't find a teamfight tactics rank for ` + config.members[player] + `! Please try again in a few minutes`);
+				}
+			});
+		} catch (error) {
+			console.log('error fetching data: ');
+			console.log(error);
+		}
 	}
 	message.channel.send("all ranked tft players' names have been updated. \n everyone HAIL THE HEIRARCHY")
 }
@@ -117,7 +134,7 @@ async function setNickNameByRank(message, args, summonerData = null) {
 			const newNickname = tftRank.tier.charAt(0) + tftRank.tier.slice(1).toLowerCase() + ' '
 				+ tftRank.rank + ' ' + tftRank.leaguePoints + ' LP in TeamFight Tactics';
 			const member = message.member;
-			message.channel.send(summonerData.name + 'is currently ' + newNickname);
+			message.channel.send(summonerData.name + ' is currently ' + newNickname);
 		} else {
 			message.reply(`Can't find a teamfight tactics rank for that summoner name! try getting gewd`);
 		}
